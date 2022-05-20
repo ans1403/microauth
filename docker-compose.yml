@@ -4,5 +4,5 @@ services:
   golang:
     build: .
     volumes:
-      - .:/usr/local/golang-devcontainer
+      - .:/usr/local/app
     tty: true

@@ -1,6 +1,6 @@
 FROM golang:1.18.1-bullseye
 
-WORKDIR /usr/local/golang-devcontainer
+WORKDIR /usr/local/app
 
 RUN go install -v golang.org/x/tools/gopls@latest && \
     go install -v github.com/ramya-rao-a/go-outline@latest && \
