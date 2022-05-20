@@ -1,8 +1,8 @@
 {
-    "name": "Golang devcontainer",
+    "name": "Golang",
     "dockerComposeFile": "../docker-compose.yml",
     "service": "golang",
-    "workspaceFolder": "/usr/local/golang-devcontainer",
+    "workspaceFolder": "/usr/local/app",
     "extensions": [
         "golang.go",
         "mhutchie.git-graph"
