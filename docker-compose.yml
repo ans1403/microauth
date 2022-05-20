@@ -3,6 +3,11 @@ version: '3.9'
 services:
   golang:
     build: .
+    ports:
+      - 8080:8080
     volumes:
       - .:/usr/local/app
+    environment:
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-None}
+      COGNITO_CLIENT_ID: ${COGNITO_CLIENT_ID:-None}
     tty: true
