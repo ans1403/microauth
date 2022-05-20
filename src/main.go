@@ -1,7 +1,8 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import "microauth/src/router"
 
 func main() {
-	router := gin.Default()
+	r := router.GetRouter()
+	r.Run(":8080")
 }
