@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  golang:
+    build: .
+    volumes:
+      - .:/usr/local/golang-devcontainer
+    tty: true

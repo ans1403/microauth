@@ -1,0 +1,20 @@
+{
+    "name": "Golang devcontainer",
+    "dockerComposeFile": "../docker-compose.yml",
+    "service": "golang",
+    "workspaceFolder": "/usr/local/golang-devcontainer",
+    "extensions": [
+        "golang.go",
+        "mhutchie.git-graph"
+    ],
+    "settings": {
+        "files.insertFinalNewline": true,
+        "files.trimTrailingWhitespace": true,
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.profiles.linux": {
+            "bash": {
+                "path": "/bin/bash"
+            }
+        }
+    }
+}
