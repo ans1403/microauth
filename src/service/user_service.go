@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"microauth/src/domain"
 	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -10,24 +11,32 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider/types"
 )
 
-type UserService struct{}
-
-func (s *UserService) getClient() *cognitoidentityprovider.Client {
-	cfg, _ := config.LoadDefaultConfig(context.TODO(), config.WithRegion(os.Getenv("AWS_DEFAULT_REGION")))
-	client := cognitoidentityprovider.NewFromConfig(cfg)
-	return client
+type UserService struct {
+	client   *cognitoidentityprovider.Client
+	clientId *string
 }
 
-func (s *UserService) SignUp(username string, password string, email string) *cognitoidentityprovider.SignUpOutput {
-	client := s.getClient()
-	res, err := client.SignUp(context.TODO(), &cognitoidentityprovider.SignUpInput{
-		ClientId: aws.String(os.Getenv("COGNITO_CLIENT_ID")),
-		Username: aws.String(username),
-		Password: aws.String(password),
+func NewUserService() *UserService {
+	awsDefaultRegion := os.Getenv("AWS_DEFAULT_REGION")
+	cognitoClientId := os.Getenv("COGNITO_CLIENT_ID")
+
+	cfg, _ := config.LoadDefaultConfig(context.TODO(), config.WithRegion(awsDefaultRegion))
+
+	s := &UserService{}
+	s.client = cognitoidentityprovider.NewFromConfig(cfg)
+	s.clientId = &cognitoClientId
+	return s
+}
+
+func (s *UserService) SignUp(req *domain.SignUpRequest) *cognitoidentityprovider.SignUpOutput {
+	res, err := s.client.SignUp(context.TODO(), &cognitoidentityprovider.SignUpInput{
+		ClientId: s.clientId,
+		Username: req.Username,
+		Password: req.Password,
 		UserAttributes: []types.AttributeType{
 			{
 				Name:  aws.String("email"),
-				Value: aws.String(email),
+				Value: req.Email,
 			},
 		},
 	})
@@ -39,12 +48,39 @@ func (s *UserService) SignUp(username string, password string, email string) *co
 	return res
 }
 
-func (s *UserService) ConfirmSignUp(username string, confirmationCode string) *cognitoidentityprovider.ConfirmSignUpOutput {
-	client := s.getClient()
-	res, err := client.ConfirmSignUp(context.TODO(), &cognitoidentityprovider.ConfirmSignUpInput{
-		ClientId:         aws.String(os.Getenv("COGNITO_CLIENT_ID")),
-		Username:         aws.String(username),
-		ConfirmationCode: aws.String(confirmationCode),
+func (s *UserService) ConfirmSignUp(req *domain.ConfirmSignUpRequest) *cognitoidentityprovider.ConfirmSignUpOutput {
+	res, err := s.client.ConfirmSignUp(context.TODO(), &cognitoidentityprovider.ConfirmSignUpInput{
+		ClientId:         s.clientId,
+		Username:         req.Username,
+		ConfirmationCode: req.ConfirmationCode,
+	})
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	return res
+}
+
+func (s *UserService) ForgotPassword(req *domain.ForgotPasswordRequest) *cognitoidentityprovider.ForgotPasswordOutput {
+	res, err := s.client.ForgotPassword(context.TODO(), &cognitoidentityprovider.ForgotPasswordInput{
+		ClientId: s.clientId,
+		Username: req.Username,
+	})
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	return res
+}
+
+func (s *UserService) ConfirmForgotPassword(req *domain.ConfirmForgotPasswordRequest) *cognitoidentityprovider.ConfirmForgotPasswordOutput {
+	res, err := s.client.ConfirmForgotPassword(context.TODO(), &cognitoidentityprovider.ConfirmForgotPasswordInput{
+		ClientId:         s.clientId,
+		Username:         req.Username,
+		ConfirmationCode: req.ConfirmationCode,
+		Password:         req.NewPassword,
 	})
 
 	if err != nil {

@@ -8,21 +8,37 @@ import (
 )
 
 func SignUp(c *gin.Context) {
-	var req domain.SignUpRequest
+	var req *domain.SignUpRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		badRequestResponse(c)
 	}
-	s := service.UserService{}
-	s.SignUp(req.Username, req.Password, req.Email)
+	service.NewUserService().SignUp(req)
 	successResponse(c)
 }
 
-func ComfirmSignUp(c *gin.Context) {
-	var req domain.ConfirmSignUpRequest
+func ConfirmSignUp(c *gin.Context) {
+	var req *domain.ConfirmSignUpRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		badRequestResponse(c)
 	}
-	s := service.UserService{}
-	s.ConfirmSignUp(req.Username, req.ConfirmationCode)
+	service.NewUserService().ConfirmSignUp(req)
+	successResponse(c)
+}
+
+func ForgotPassword(c *gin.Context) {
+	var req *domain.ForgotPasswordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		badRequestResponse(c)
+	}
+	service.NewUserService().ForgotPassword(req)
+	successResponse(c)
+}
+
+func ConfirmForgotPassword(c *gin.Context) {
+	var req *domain.ConfirmForgotPasswordRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		badRequestResponse(c)
+	}
+	service.NewUserService().ConfirmForgotPassword(req)
 	successResponse(c)
 }
