@@ -31,12 +31,12 @@ func NewAuthService() *AuthService {
 func (s *AuthService) SignUp(req *domain.SignUpRequest) *cognitoidentityprovider.SignUpOutput {
 	res, err := s.client.SignUp(context.TODO(), &cognitoidentityprovider.SignUpInput{
 		ClientId: s.clientId,
-		Username: req.Username,
-		Password: req.Password,
+		Username: &req.Username,
+		Password: &req.Password,
 		UserAttributes: []types.AttributeType{
 			{
 				Name:  aws.String("email"),
-				Value: req.Email,
+				Value: &req.Email,
 			},
 		},
 	})
@@ -51,8 +51,8 @@ func (s *AuthService) SignUp(req *domain.SignUpRequest) *cognitoidentityprovider
 func (s *AuthService) ConfirmSignUp(req *domain.ConfirmSignUpRequest) *cognitoidentityprovider.ConfirmSignUpOutput {
 	res, err := s.client.ConfirmSignUp(context.TODO(), &cognitoidentityprovider.ConfirmSignUpInput{
 		ClientId:         s.clientId,
-		Username:         req.Username,
-		ConfirmationCode: req.ConfirmationCode,
+		Username:         &req.Username,
+		ConfirmationCode: &req.ConfirmationCode,
 	})
 
 	if err != nil {
@@ -65,7 +65,7 @@ func (s *AuthService) ConfirmSignUp(req *domain.ConfirmSignUpRequest) *cognitoid
 func (s *AuthService) ForgotPassword(req *domain.ForgotPasswordRequest) *cognitoidentityprovider.ForgotPasswordOutput {
 	res, err := s.client.ForgotPassword(context.TODO(), &cognitoidentityprovider.ForgotPasswordInput{
 		ClientId: s.clientId,
-		Username: req.Username,
+		Username: &req.Username,
 	})
 
 	if err != nil {
@@ -78,9 +78,9 @@ func (s *AuthService) ForgotPassword(req *domain.ForgotPasswordRequest) *cognito
 func (s *AuthService) ConfirmForgotPassword(req *domain.ConfirmForgotPasswordRequest) *cognitoidentityprovider.ConfirmForgotPasswordOutput {
 	res, err := s.client.ConfirmForgotPassword(context.TODO(), &cognitoidentityprovider.ConfirmForgotPasswordInput{
 		ClientId:         s.clientId,
-		Username:         req.Username,
-		ConfirmationCode: req.ConfirmationCode,
-		Password:         req.NewPassword,
+		Username:         &req.Username,
+		ConfirmationCode: &req.ConfirmationCode,
+		Password:         &req.NewPassword,
 	})
 
 	if err != nil {
