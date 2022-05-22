@@ -52,3 +52,21 @@ func (ctrl *AuthController) ConfirmForgotPassword(c *gin.Context) {
 	ctrl.authService.ConfirmForgotPassword(req)
 	successResponse(c)
 }
+
+func (ctrl *AuthController) SignIn(c *gin.Context) {
+	var req *domain.SignInRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		badRequestResponse(c)
+	}
+	res := ctrl.authService.SignIn(req)
+
+	session := getDefaultSession(c)
+	session.Set("cognitoAccessToken", res.AuthenticationResult.AccessToken)
+	session.Set("cognitoIdToken", res.AuthenticationResult.IdToken)
+	session.Set("cognitoRefreshToken", res.AuthenticationResult.RefreshToken)
+	if err := session.Save(); err != nil {
+		panic(err.Error())
+	}
+
+	successResponse(c)
+}
