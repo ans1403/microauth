@@ -7,10 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type AuthController struct{}
+type AuthController struct {
+	authService *service.AuthService
+}
 
 func NewAuthController() *AuthController {
-	return &AuthController{}
+	return &AuthController{
+		service.NewAuthService(),
+	}
 }
 
 func (ctrl *AuthController) SignUp(c *gin.Context) {
@@ -18,7 +22,7 @@ func (ctrl *AuthController) SignUp(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		badRequestResponse(c)
 	}
-	service.NewAuthService().SignUp(req)
+	ctrl.authService.SignUp(req)
 	successResponse(c)
 }
 
@@ -27,7 +31,7 @@ func (ctrl *AuthController) ConfirmSignUp(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		badRequestResponse(c)
 	}
-	service.NewAuthService().ConfirmSignUp(req)
+	ctrl.authService.ConfirmSignUp(req)
 	successResponse(c)
 }
 
@@ -36,7 +40,7 @@ func (ctrl *AuthController) ForgotPassword(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		badRequestResponse(c)
 	}
-	service.NewAuthService().ForgotPassword(req)
+	ctrl.authService.ForgotPassword(req)
 	successResponse(c)
 }
 
@@ -45,6 +49,6 @@ func (ctrl *AuthController) ConfirmForgotPassword(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		badRequestResponse(c)
 	}
-	service.NewAuthService().ConfirmForgotPassword(req)
+	ctrl.authService.ConfirmForgotPassword(req)
 	successResponse(c)
 }
