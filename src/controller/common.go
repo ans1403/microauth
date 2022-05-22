@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,4 +21,14 @@ func badRequestResponse(c *gin.Context) {
 	c.JSON(http.StatusBadRequest, jsonResponse{
 		Message: "Bad Request",
 	})
+}
+
+func getDefaultSession(c *gin.Context) sessions.Session {
+	session := sessions.Default(c)
+	session.Options(sessions.Options{
+		MaxAge:   604800,
+		Secure:   true,
+		HttpOnly: true,
+	})
+	return session
 }
