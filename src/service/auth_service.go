@@ -11,32 +11,32 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider/types"
 )
 
-type UserService struct {
+type AuthService struct {
 	client   *cognitoidentityprovider.Client
 	clientId *string
 }
 
-func NewUserService() *UserService {
+func NewAuthService() *AuthService {
 	awsDefaultRegion := os.Getenv("AWS_DEFAULT_REGION")
 	cognitoClientId := os.Getenv("COGNITO_CLIENT_ID")
 
 	cfg, _ := config.LoadDefaultConfig(context.TODO(), config.WithRegion(awsDefaultRegion))
 
-	s := &UserService{}
+	s := &AuthService{}
 	s.client = cognitoidentityprovider.NewFromConfig(cfg)
 	s.clientId = &cognitoClientId
 	return s
 }
 
-func (s *UserService) SignUp(req *domain.SignUpRequest) *cognitoidentityprovider.SignUpOutput {
+func (s *AuthService) SignUp(req *domain.SignUpRequest) *cognitoidentityprovider.SignUpOutput {
 	res, err := s.client.SignUp(context.TODO(), &cognitoidentityprovider.SignUpInput{
 		ClientId: s.clientId,
-		Username: req.Username,
-		Password: req.Password,
+		Username: &req.Username,
+		Password: &req.Password,
 		UserAttributes: []types.AttributeType{
 			{
 				Name:  aws.String("email"),
-				Value: req.Email,
+				Value: &req.Email,
 			},
 		},
 	})
@@ -48,11 +48,11 @@ func (s *UserService) SignUp(req *domain.SignUpRequest) *cognitoidentityprovider
 	return res
 }
 
-func (s *UserService) ConfirmSignUp(req *domain.ConfirmSignUpRequest) *cognitoidentityprovider.ConfirmSignUpOutput {
+func (s *AuthService) ConfirmSignUp(req *domain.ConfirmSignUpRequest) *cognitoidentityprovider.ConfirmSignUpOutput {
 	res, err := s.client.ConfirmSignUp(context.TODO(), &cognitoidentityprovider.ConfirmSignUpInput{
 		ClientId:         s.clientId,
-		Username:         req.Username,
-		ConfirmationCode: req.ConfirmationCode,
+		Username:         &req.Username,
+		ConfirmationCode: &req.ConfirmationCode,
 	})
 
 	if err != nil {
@@ -62,10 +62,10 @@ func (s *UserService) ConfirmSignUp(req *domain.ConfirmSignUpRequest) *cognitoid
 	return res
 }
 
-func (s *UserService) ForgotPassword(req *domain.ForgotPasswordRequest) *cognitoidentityprovider.ForgotPasswordOutput {
+func (s *AuthService) ForgotPassword(req *domain.ForgotPasswordRequest) *cognitoidentityprovider.ForgotPasswordOutput {
 	res, err := s.client.ForgotPassword(context.TODO(), &cognitoidentityprovider.ForgotPasswordInput{
 		ClientId: s.clientId,
-		Username: req.Username,
+		Username: &req.Username,
 	})
 
 	if err != nil {
@@ -75,12 +75,12 @@ func (s *UserService) ForgotPassword(req *domain.ForgotPasswordRequest) *cognito
 	return res
 }
 
-func (s *UserService) ConfirmForgotPassword(req *domain.ConfirmForgotPasswordRequest) *cognitoidentityprovider.ConfirmForgotPasswordOutput {
+func (s *AuthService) ConfirmForgotPassword(req *domain.ConfirmForgotPasswordRequest) *cognitoidentityprovider.ConfirmForgotPasswordOutput {
 	res, err := s.client.ConfirmForgotPassword(context.TODO(), &cognitoidentityprovider.ConfirmForgotPasswordInput{
 		ClientId:         s.clientId,
-		Username:         req.Username,
-		ConfirmationCode: req.ConfirmationCode,
-		Password:         req.NewPassword,
+		Username:         &req.Username,
+		ConfirmationCode: &req.ConfirmationCode,
+		Password:         &req.NewPassword,
 	})
 
 	if err != nil {
