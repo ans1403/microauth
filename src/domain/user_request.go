@@ -20,3 +20,8 @@ type ConfirmForgotPasswordRequest struct {
 	ConfirmationCode string `json:"confirmationCode"`
 	NewPassword      string `json:"newPassword"`
 }
+
+type SignInRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}

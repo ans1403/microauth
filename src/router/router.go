@@ -1,13 +1,24 @@
 package router
 
 import (
+	"microauth/src/constants"
 	"microauth/src/controller"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 )
 
 func GetRouter() *gin.Engine {
+	app := constants.NewApp()
+
+	store, err := redis.NewStore(10, "tcp", app.RedisHost+":"+app.RedisPort, "", []byte(app.SecretKey))
+	if err != nil {
+		panic(err.Error())
+	}
+
 	router := gin.Default()
+	router.Use(sessions.Sessions("SESSION", store))
 
 	authController := controller.NewAuthController()
 
@@ -17,6 +28,7 @@ func GetRouter() *gin.Engine {
 		v1.POST("/confirmSignUp", authController.ConfirmSignUp)
 		v1.POST("/forgotPassword", authController.ForgotPassword)
 		v1.POST("/confirmForgotPassword", authController.ConfirmForgotPassword)
+		v1.POST("/signIn", authController.SignIn)
 	}
 
 	return router
