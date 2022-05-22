@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
+	"microauth/src/constants"
 	"microauth/src/domain"
-	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -17,14 +17,12 @@ type AuthService struct {
 }
 
 func NewAuthService() *AuthService {
-	awsDefaultRegion := os.Getenv("AWS_DEFAULT_REGION")
-	cognitoClientId := os.Getenv("COGNITO_CLIENT_ID")
-
-	cfg, _ := config.LoadDefaultConfig(context.TODO(), config.WithRegion(awsDefaultRegion))
+	app := constants.NewApp()
+	cfg, _ := config.LoadDefaultConfig(context.TODO(), config.WithRegion(app.AwsDefaultRegion))
 
 	s := &AuthService{}
 	s.client = cognitoidentityprovider.NewFromConfig(cfg)
-	s.clientId = &cognitoClientId
+	s.clientId = &app.CognitoClientId
 	return s
 }
 
@@ -81,6 +79,23 @@ func (s *AuthService) ConfirmForgotPassword(req *domain.ConfirmForgotPasswordReq
 		Username:         &req.Username,
 		ConfirmationCode: &req.ConfirmationCode,
 		Password:         &req.NewPassword,
+	})
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	return res
+}
+
+func (s *AuthService) SignIn(req *domain.SignInRequest) *cognitoidentityprovider.InitiateAuthOutput {
+	res, err := s.client.InitiateAuth(context.TODO(), &cognitoidentityprovider.InitiateAuthInput{
+		AuthFlow: types.AuthFlowTypeUserPasswordAuth,
+		ClientId: s.clientId,
+		AuthParameters: map[string]string{
+			"USERNAME": req.Username,
+			"PASSWORD": req.Password,
+		},
 	})
 
 	if err != nil {
