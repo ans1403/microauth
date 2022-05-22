@@ -1,5 +1,8 @@
 version: '3.9'
 
+volumes:
+  redis-store:
+
 services:
   golang:
     build: .
@@ -10,4 +13,12 @@ services:
     environment:
       AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-None}
       COGNITO_CLIENT_ID: ${COGNITO_CLIENT_ID:-None}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      SECRET_KEY: ${SECRET_KEY:-None}
     tty: true
+
+  redis:
+    image: redis:6.2.7
+    volumes:
+      - redis-store:/data
