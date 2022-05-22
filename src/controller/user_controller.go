@@ -18,7 +18,7 @@ func (ctrl *AuthController) SignUp(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		badRequestResponse(c)
 	}
-	service.NewUserService().SignUp(req)
+	service.NewAuthService().SignUp(req)
 	successResponse(c)
 }
 
@@ -27,7 +27,7 @@ func (ctrl *AuthController) ConfirmSignUp(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		badRequestResponse(c)
 	}
-	service.NewUserService().ConfirmSignUp(req)
+	service.NewAuthService().ConfirmSignUp(req)
 	successResponse(c)
 }
 
@@ -36,7 +36,7 @@ func (ctrl *AuthController) ForgotPassword(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		badRequestResponse(c)
 	}
-	service.NewUserService().ForgotPassword(req)
+	service.NewAuthService().ForgotPassword(req)
 	successResponse(c)
 }
 
@@ -45,6 +45,6 @@ func (ctrl *AuthController) ConfirmForgotPassword(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		badRequestResponse(c)
 	}
-	service.NewUserService().ConfirmForgotPassword(req)
+	service.NewAuthService().ConfirmForgotPassword(req)
 	successResponse(c)
 }
