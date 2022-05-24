@@ -12,24 +12,32 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider/types"
 )
 
-type AuthService struct {
+type AuthService interface {
+	SignUp(req *domain.SignUpRequest) error
+	ConfirmSignUp(req *domain.ConfirmSignUpRequest) error
+	ForgotPassword(req *domain.ForgotPasswordRequest) error
+	ConfirmForgotPassword(req *domain.ConfirmForgotPasswordRequest) error
+	SignIn(req *domain.SignInRequest) (*cognitoidentityprovider.InitiateAuthOutput, error)
+}
+
+func NewAuthService() AuthService {
+	app := constants.NewApp()
+	cfg, _ := config.LoadDefaultConfig(context.TODO(), config.WithRegion(app.AwsDefaultRegion))
+
+	return &authService{
+		client:   cognitoidentityprovider.NewFromConfig(cfg),
+		clientId: &app.CognitoClientId,
+		logger:   logging.NewLogger(),
+	}
+}
+
+type authService struct {
 	client   *cognitoidentityprovider.Client
 	clientId *string
 	logger   logging.Logger
 }
 
-func NewAuthService() *AuthService {
-	app := constants.NewApp()
-	cfg, _ := config.LoadDefaultConfig(context.TODO(), config.WithRegion(app.AwsDefaultRegion))
-
-	s := &AuthService{}
-	s.client = cognitoidentityprovider.NewFromConfig(cfg)
-	s.clientId = &app.CognitoClientId
-	s.logger = logging.NewLogger()
-	return s
-}
-
-func (s *AuthService) SignUp(req *domain.SignUpRequest) error {
+func (s *authService) SignUp(req *domain.SignUpRequest) error {
 	_, err := s.client.SignUp(context.TODO(), &cognitoidentityprovider.SignUpInput{
 		ClientId: s.clientId,
 		Username: &req.Username,
@@ -50,7 +58,7 @@ func (s *AuthService) SignUp(req *domain.SignUpRequest) error {
 	return nil
 }
 
-func (s *AuthService) ConfirmSignUp(req *domain.ConfirmSignUpRequest) error {
+func (s *authService) ConfirmSignUp(req *domain.ConfirmSignUpRequest) error {
 	_, err := s.client.ConfirmSignUp(context.TODO(), &cognitoidentityprovider.ConfirmSignUpInput{
 		ClientId:         s.clientId,
 		Username:         &req.Username,
@@ -65,7 +73,7 @@ func (s *AuthService) ConfirmSignUp(req *domain.ConfirmSignUpRequest) error {
 	return nil
 }
 
-func (s *AuthService) ForgotPassword(req *domain.ForgotPasswordRequest) error {
+func (s *authService) ForgotPassword(req *domain.ForgotPasswordRequest) error {
 	_, err := s.client.ForgotPassword(context.TODO(), &cognitoidentityprovider.ForgotPasswordInput{
 		ClientId: s.clientId,
 		Username: &req.Username,
@@ -79,7 +87,7 @@ func (s *AuthService) ForgotPassword(req *domain.ForgotPasswordRequest) error {
 	return nil
 }
 
-func (s *AuthService) ConfirmForgotPassword(req *domain.ConfirmForgotPasswordRequest) error {
+func (s *authService) ConfirmForgotPassword(req *domain.ConfirmForgotPasswordRequest) error {
 	_, err := s.client.ConfirmForgotPassword(context.TODO(), &cognitoidentityprovider.ConfirmForgotPasswordInput{
 		ClientId:         s.clientId,
 		Username:         &req.Username,
@@ -95,7 +103,7 @@ func (s *AuthService) ConfirmForgotPassword(req *domain.ConfirmForgotPasswordReq
 	return nil
 }
 
-func (s *AuthService) SignIn(req *domain.SignInRequest) (*cognitoidentityprovider.InitiateAuthOutput, error) {
+func (s *authService) SignIn(req *domain.SignInRequest) (*cognitoidentityprovider.InitiateAuthOutput, error) {
 	res, err := s.client.InitiateAuth(context.TODO(), &cognitoidentityprovider.InitiateAuthInput{
 		AuthFlow: types.AuthFlowTypeUserPasswordAuth,
 		ClientId: s.clientId,

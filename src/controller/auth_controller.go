@@ -9,19 +9,27 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type AuthController struct {
-	authService *service.AuthService
-	logger      logging.Logger
+type AuthController interface {
+	SignUp(c *gin.Context)
+	ConfirmSignUp(c *gin.Context)
+	ForgotPassword(c *gin.Context)
+	ConfirmForgotPassword(c *gin.Context)
+	SignIn(c *gin.Context)
 }
 
-func NewAuthController() *AuthController {
-	return &AuthController{
-		service.NewAuthService(),
-		logging.NewLogger(),
+func NewAuthController() AuthController {
+	return &authController{
+		authService: service.NewAuthService(),
+		logger:      logging.NewLogger(),
 	}
 }
 
-func (ctrl *AuthController) SignUp(c *gin.Context) {
+type authController struct {
+	authService service.AuthService
+	logger      logging.Logger
+}
+
+func (ctrl *authController) SignUp(c *gin.Context) {
 	var req *domain.SignUpRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -37,7 +45,7 @@ func (ctrl *AuthController) SignUp(c *gin.Context) {
 	responseWithMessage(c, http.StatusOK)
 }
 
-func (ctrl *AuthController) ConfirmSignUp(c *gin.Context) {
+func (ctrl *authController) ConfirmSignUp(c *gin.Context) {
 	req := &domain.ConfirmSignUpRequest{
 		Username:         c.Query("username"),
 		ConfirmationCode: c.Query("confirmationCode"),
@@ -51,7 +59,7 @@ func (ctrl *AuthController) ConfirmSignUp(c *gin.Context) {
 	responseWithMessage(c, http.StatusOK)
 }
 
-func (ctrl *AuthController) ForgotPassword(c *gin.Context) {
+func (ctrl *authController) ForgotPassword(c *gin.Context) {
 	var req *domain.ForgotPasswordRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -67,7 +75,7 @@ func (ctrl *AuthController) ForgotPassword(c *gin.Context) {
 	responseWithMessage(c, http.StatusOK)
 }
 
-func (ctrl *AuthController) ConfirmForgotPassword(c *gin.Context) {
+func (ctrl *authController) ConfirmForgotPassword(c *gin.Context) {
 	var req *domain.ConfirmForgotPasswordRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -83,7 +91,7 @@ func (ctrl *AuthController) ConfirmForgotPassword(c *gin.Context) {
 	responseWithMessage(c, http.StatusOK)
 }
 
-func (ctrl *AuthController) SignIn(c *gin.Context) {
+func (ctrl *authController) SignIn(c *gin.Context) {
 	var req *domain.SignInRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
