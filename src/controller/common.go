@@ -1,25 +1,23 @@
 package controller
 
 import (
+	"microauth/src/domain"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
-type jsonResponse struct {
-	Message string `json:"message"`
-}
-
-func successResponse(c *gin.Context) {
-	c.JSON(http.StatusOK, jsonResponse{
-		Message: "success",
+func responseWithMessage(c *gin.Context, httpStatus int) {
+	c.JSON(httpStatus, domain.ResponseWithMessage{
+		Message: http.StatusText(httpStatus),
 	})
 }
 
-func badRequestResponse(c *gin.Context) {
-	c.JSON(http.StatusBadRequest, jsonResponse{
-		Message: "Bad Request",
+func responseWithMessageAndResults(c *gin.Context, httpStatus int, results interface{}) {
+	c.JSON(httpStatus, domain.ResponseWithMessageAndResults{
+		Message: http.StatusText(httpStatus),
+		Results: results,
 	})
 }
 
