@@ -27,9 +27,9 @@ func (ctrl *AuthController) SignUp(c *gin.Context) {
 }
 
 func (ctrl *AuthController) ConfirmSignUp(c *gin.Context) {
-	var req *domain.ConfirmSignUpRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		badRequestResponse(c)
+	req := &domain.ConfirmSignUpRequest{
+		Username:         c.Query("username"),
+		ConfirmationCode: c.Query("confirmationCode"),
 	}
 	ctrl.authService.ConfirmSignUp(req)
 	successResponse(c)
