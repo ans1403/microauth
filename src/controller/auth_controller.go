@@ -2,28 +2,39 @@ package controller
 
 import (
 	"microauth/src/domain"
+	"microauth/src/logging"
 	"microauth/src/service"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type AuthController struct {
 	authService *service.AuthService
+	logger      logging.Logger
 }
 
 func NewAuthController() *AuthController {
 	return &AuthController{
 		service.NewAuthService(),
+		logging.NewLogger(),
 	}
 }
 
 func (ctrl *AuthController) SignUp(c *gin.Context) {
 	var req *domain.SignUpRequest
+
 	if err := c.ShouldBindJSON(&req); err != nil {
-		badRequestResponse(c)
+		ctrl.logger.Info(err.Error())
+		responseWithMessage(c, http.StatusBadRequest)
 	}
-	ctrl.authService.SignUp(req)
-	successResponse(c)
+
+	if err := ctrl.authService.SignUp(req); err != nil {
+		ctrl.logger.Error(err.Error())
+		responseWithMessage(c, http.StatusInternalServerError)
+	}
+
+	responseWithMessage(c, http.StatusOK)
 }
 
 func (ctrl *AuthController) ConfirmSignUp(c *gin.Context) {
@@ -31,42 +42,73 @@ func (ctrl *AuthController) ConfirmSignUp(c *gin.Context) {
 		Username:         c.Query("username"),
 		ConfirmationCode: c.Query("confirmationCode"),
 	}
-	ctrl.authService.ConfirmSignUp(req)
-	successResponse(c)
+
+	if err := ctrl.authService.ConfirmSignUp(req); err != nil {
+		ctrl.logger.Error(err.Error())
+		responseWithMessage(c, http.StatusInternalServerError)
+	}
+
+	responseWithMessage(c, http.StatusOK)
 }
 
 func (ctrl *AuthController) ForgotPassword(c *gin.Context) {
 	var req *domain.ForgotPasswordRequest
+
 	if err := c.ShouldBindJSON(&req); err != nil {
-		badRequestResponse(c)
+		ctrl.logger.Info(err.Error())
+		responseWithMessage(c, http.StatusBadRequest)
 	}
-	ctrl.authService.ForgotPassword(req)
-	successResponse(c)
+
+	if err := ctrl.authService.ForgotPassword(req); err != nil {
+		ctrl.logger.Error(err.Error())
+		responseWithMessage(c, http.StatusInternalServerError)
+	}
+
+	responseWithMessage(c, http.StatusOK)
 }
 
 func (ctrl *AuthController) ConfirmForgotPassword(c *gin.Context) {
 	var req *domain.ConfirmForgotPasswordRequest
+
 	if err := c.ShouldBindJSON(&req); err != nil {
-		badRequestResponse(c)
+		ctrl.logger.Info(err.Error())
+		responseWithMessage(c, http.StatusBadRequest)
 	}
-	ctrl.authService.ConfirmForgotPassword(req)
-	successResponse(c)
+
+	if err := ctrl.authService.ConfirmForgotPassword(req); err != nil {
+		ctrl.logger.Error(err.Error())
+		responseWithMessage(c, http.StatusInternalServerError)
+	}
+
+	responseWithMessage(c, http.StatusOK)
 }
 
 func (ctrl *AuthController) SignIn(c *gin.Context) {
 	var req *domain.SignInRequest
+
 	if err := c.ShouldBindJSON(&req); err != nil {
-		badRequestResponse(c)
+		ctrl.logger.Info(err.Error())
+		responseWithMessage(c, http.StatusBadRequest)
 	}
-	res := ctrl.authService.SignIn(req)
+
+	res, err := ctrl.authService.SignIn(req)
+	if err != nil {
+		ctrl.logger.Error(err.Error())
+		responseWithMessage(c, http.StatusInternalServerError)
+	}
 
 	session := getDefaultSession(c)
 	session.Set("cognitoAccessToken", res.AuthenticationResult.AccessToken)
 	session.Set("cognitoIdToken", res.AuthenticationResult.IdToken)
 	session.Set("cognitoRefreshToken", res.AuthenticationResult.RefreshToken)
 	if err := session.Save(); err != nil {
-		panic(err.Error())
+		ctrl.logger.Error(err.Error())
 	}
 
-	successResponse(c)
+	// 普通は値を返すことはないけど勉強目的で階層構造の値を返してみる。
+	responseWithMessageAndResults(c, http.StatusOK, &domain.CognitoTokens{
+		AccessToken:  *res.AuthenticationResult.AccessToken,
+		IdToken:      *res.AuthenticationResult.IdToken,
+		RefreshToken: *res.AuthenticationResult.RefreshToken,
+	})
 }
