@@ -21,6 +21,13 @@ func responseWithMessageAndResults(c *gin.Context, httpStatus int, results inter
 	})
 }
 
+func responseWithRedirectLocation(c *gin.Context, redirectUrl string) {
+	c.Header("Location", redirectUrl)
+	c.JSON(http.StatusFound, domain.ResponseWithMessage{
+		Message: http.StatusText(http.StatusOK),
+	})
+}
+
 func getDefaultSession(c *gin.Context) sessions.Session {
 	session := sessions.Default(c)
 	session.Options(sessions.Options{
