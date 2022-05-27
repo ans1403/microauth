@@ -8,13 +8,21 @@
         "mhutchie.git-graph"
     ],
     "settings": {
+        "emmet.variables": {
+            "lang": "ja"
+        },
         "files.insertFinalNewline": true,
         "files.trimTrailingWhitespace": true,
+        "html.format.indentInnerHtml": true,
         "terminal.integrated.defaultProfile.linux": "bash",
         "terminal.integrated.profiles.linux": {
             "bash": {
                 "path": "/bin/bash"
             }
+        },
+        "[html]": {
+            "editor.formatOnSave": true,
+            "editor.tabSize": 2
         }
     }
 }
