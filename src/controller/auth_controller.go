@@ -56,7 +56,7 @@ func (ctrl *authController) ConfirmSignUp(c *gin.Context) {
 		responseWithMessage(c, http.StatusInternalServerError)
 	}
 
-	responseWithMessage(c, http.StatusOK)
+	responseWithRedirectLocation(c, "http://localhost:8080/signIn")
 }
 
 func (ctrl *authController) ForgotPassword(c *gin.Context) {
