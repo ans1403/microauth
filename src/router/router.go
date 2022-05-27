@@ -18,12 +18,20 @@ func GetRouter() *gin.Engine {
 	}
 
 	router := gin.Default()
+	router.LoadHTMLGlob("src/templates/*.html")
 	router.Use(sessions.Sessions("SESSION", store))
 
-	authController := controller.NewAuthController()
+	front := router.Group("/")
+	{
+		frontController := controller.NewFrontController()
+		front.GET("/signUp", frontController.SignUp)
+		front.GET("/completeSignUp", frontController.CompleteSignUp)
+		front.GET("/signIn", frontController.SignIn)
+	}
 
 	v1 := router.Group("api/v1")
 	{
+		authController := controller.NewAuthController()
 		v1.POST("/signUp", authController.SignUp)
 		v1.GET("/confirmSignUp", authController.ConfirmSignUp)
 		v1.POST("/forgotPassword", authController.ForgotPassword)
